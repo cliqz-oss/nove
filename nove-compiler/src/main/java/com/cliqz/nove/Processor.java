@@ -23,7 +23,6 @@ import javax.tools.Diagnostic.Kind;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class Processor extends AbstractProcessor{
 
-
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (annotations == null || annotations.isEmpty()) {
@@ -45,7 +44,7 @@ public class Processor extends AbstractProcessor{
             }
             if (ElementKind.METHOD.equals(e.getKind())) {
                 final ExecutableElement ee = (ExecutableElement) e;
-                checkNotPrivate(ee);
+                checkModifiers(ee);
                 checkReturnVoid(ee);
                 checkParameters(ee);
                 builder.addSubscriberMethod(ee);
@@ -59,13 +58,14 @@ public class Processor extends AbstractProcessor{
         return true;
     }
 
-    private void checkNotPrivate(ExecutableElement e) {
+    private void checkModifiers(ExecutableElement e) {
         for (Modifier modifier: e.getModifiers()) {
             if (modifier.equals(Modifier.PRIVATE) ||
                     modifier.equals(Modifier.PROTECTED) ||
                     modifier.equals(Modifier.ABSTRACT)) {
                 processingEnv.getMessager()
-                        .printMessage(Kind.ERROR, "Invalid modifier: " + modifier.name(), e);
+                        .printMessage(Kind.ERROR, ProcessorMessages
+                                .getInvalidModifierMessage(modifier), e);
             }
         }
     }
@@ -75,13 +75,13 @@ public class Processor extends AbstractProcessor{
         final int size = params.size();
         if (size != 1) {
             processingEnv.getMessager()
-                    .printMessage(Kind.ERROR, "Subscriber must have a single parameter", e);
+                    .printMessage(Kind.ERROR, ProcessorMessages.ERROR_TOO_MANY_ARGUMENTS, e);
         }
 
         final VariableElement param = params.get(0);
         if (param.asType().getKind().isPrimitive()) {
             processingEnv.getMessager()
-                    .printMessage(Kind.ERROR, "Subscriber can't use primitives as parameters", e);
+                    .printMessage(Kind.ERROR, ProcessorMessages.ERROR_PRIMITIVE_PARAMETERS, e);
         }
     }
 
@@ -89,7 +89,7 @@ public class Processor extends AbstractProcessor{
         final TypeMirror returnType = e.getReturnType();
         if (!returnType.getKind().equals(TypeKind.VOID)) {
             processingEnv.getMessager()
-                    .printMessage(Kind.WARNING, "Subscriber should return void", e);
+                    .printMessage(Kind.WARNING, ProcessorMessages.WARNING_NON_VOID_RESULT, e);
         }
     }
 }

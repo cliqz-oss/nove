@@ -5,8 +5,6 @@ import com.google.testing.compile.JavaFileObjects;
 
 import org.junit.Test;
 
-import java.net.URL;
-
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
 
@@ -43,34 +41,34 @@ public class ProcessorTest {
 
     @Test
     public void shouldFailIfPrivateSubscriber() {
-        testForFail("PrivateSubscriber.java", "Invalid modifier: PRIVATE");
+        testForFail("PrivateSubscriber.java", ProcessorMessages.ERROR_INVALID_MODIFIER_PRIVATE);
     }
 
     @Test
     public void shouldFailIfProtectedSubscriber() {
-        testForFail("ProtectedSubscriber.java", "Invalid modifier: PROTECTED");
+        testForFail("ProtectedSubscriber.java", ProcessorMessages.ERROR_INVALID_MODIFIER_PROTECTED);
     }
 
     @Test
     public void shouldFailIfAbstractSubscriber() {
-        testForFail("AbstractSubscriber.java", "Invalid modifier: ABSTRACT");
+        testForFail("AbstractSubscriber.java", ProcessorMessages.ERROR_INVALID_MODIFIER_ABSTRACT);
     }
 
     @Test
     public void shouldFailIfMultipleParameters() {
-        testForFail("MultipleParams.java", "Subscriber must have a single parameter");
+        testForFail("MultipleParams.java", ProcessorMessages.ERROR_TOO_MANY_ARGUMENTS);
     }
 
     @Test
     public void shouldFailIfPrimitiveTypeParameter() {
-        testForFail("PrimitiveParams.java", "Subscriber can't use primitives as parameters");
+        testForFail("PrimitiveParams.java", ProcessorMessages.ERROR_PRIMITIVE_PARAMETERS);
     }
 
     @Test
     public void shouldWarnIfSubscriberReturns() {
         final Compilation compilation = compileResource("NonVoidResultSubscriber.java");
         assertThat(compilation).succeeded();
-        assertThat(compilation).hadWarningContaining("Subscriber should return void");
+        assertThat(compilation).hadWarningContaining(ProcessorMessages.WARNING_NON_VOID_RESULT);
     }
 
     private Compilation compileResource(String resource) {
