@@ -1,7 +1,6 @@
 package com.cliqz.noveapp;
 
 import android.util.Log;
-
 import com.cliqz.nove.Bus;
 import com.cliqz.nove.Subscribe;
 

@@ -1,9 +1,8 @@
 package com.cliqz.noveapp;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-
 import com.cliqz.nove.Bus;
 import com.cliqz.nove.Subscribe;
 

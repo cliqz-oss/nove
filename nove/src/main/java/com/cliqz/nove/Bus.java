@@ -15,25 +15,33 @@ public class Bus {
 
     private final static ClassLoader loader = Bus.class.getClassLoader();
     private final Map<Object, Dispatcher> dispatcherMap = new HashMap<>();
-    private final Map<Class, Set<Dispatcher>> messagesToObject = new HashMap<>();
+    private final Map<Class, Set<Dispatcher>> messageToDispatchers = new HashMap<>();
 
     public void register(Object object) {
+        if (object == null) {
+            throw new IllegalArgumentException("Trying to register a null reference");
+        }
         if (!dispatcherMap.containsKey(object)) {
             try {
                 final Dispatcher dispatcher = new Dispatcher(object);
-                dispatcherMap.put(object, dispatcher);
-                final Class[] messages = dispatcher.messageTypes;
-                for (Class clazz: messages) {
-                    Set<Dispatcher> objects = messagesToObject.get(clazz);
-                    if (objects == null) {
-                        objects = new HashSet<>();
-                        messagesToObject.put(clazz, objects);
-                    }
-                    objects.add(dispatcher);
-                }
+                addDispatcherFor(object, dispatcher);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    // Visible for testing
+    @SuppressWarnings("WeakerAccess")
+    void addDispatcherFor(Object object, Dispatcher dispatcher) {
+        dispatcherMap.put(object, dispatcher);
+        for (Class clazz: dispatcher.getMessageTypes()) {
+            Set<Dispatcher> dispatcherSet = messageToDispatchers.get(clazz);
+            if (dispatcherSet == null) {
+                dispatcherSet = new HashSet<>();
+                messageToDispatchers.put(clazz, dispatcherSet);
+            }
+            dispatcherSet.add(dispatcher);
         }
     }
 
@@ -42,7 +50,7 @@ public class Bus {
             final Dispatcher dispatcher = dispatcherMap.remove(object);
             try {
                 for (Class clazz: dispatcher.messageTypes) {
-                    Set objects = messagesToObject.get(clazz);
+                    Set objects = messageToDispatchers.get(clazz);
                     if (objects != null) {
                         objects.remove(dispatcher);
                     }
@@ -54,22 +62,20 @@ public class Bus {
     }
 
     public void post(Object object) {
-        final Set<Dispatcher> dispatchers = messagesToObject.get(object.getClass());
+        final Set<Dispatcher> dispatchers = messageToDispatchers.get(object.getClass());
         if (dispatchers != null) {
             for (Dispatcher dispatcher: dispatchers) {
-                try {
-                    dispatcher.post.invoke(dispatcher.dispatcher, object);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                dispatcher.post(object);
             }
         }
     }
 
-    private static class Dispatcher {
-        final Object dispatcher;
-        final Method post;
-        final Class[] messageTypes;
+    // Visible for testing
+    @SuppressWarnings("WeakerAccess")
+    static class Dispatcher {
+        private final Object dispatcher;
+        private final Method post;
+        private final Class[] messageTypes;
 
         Dispatcher(Object object) throws Exception {
             final String dispatcherClassName =
@@ -85,6 +91,18 @@ public class Bus {
                     .getDeclaredMethod(POST_METHOD_NAME, Object.class);
             messageTypes = (Class[]) dispatcherClass
                     .getDeclaredField(MESSAGE_TYPES_FIELD_NAME).get(null);
+        }
+
+        void post(Object message) {
+            try {
+                post.invoke(dispatcher, message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        Class[] getMessageTypes() {
+            return messageTypes;
         }
     }
 }

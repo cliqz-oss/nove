@@ -2,7 +2,6 @@ package com.cliqz.nove;
 
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
-
 import org.junit.Test;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
