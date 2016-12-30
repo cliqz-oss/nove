@@ -1,6 +1,5 @@
 package com.cliqz.nove;
 
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -37,10 +36,6 @@ public class Processor extends AbstractProcessor{
         }
 
         final HashMap<TypeElement, DispatcherWriter.Builder> builders = new HashMap<>();
-//        final DispatcherWriter.Builder builder = new DispatcherWriter.Builder();
-//        final Element anyElement = annotatedElements.iterator().next();
-//        final TypeElement clazz = (TypeElement) anyElement.getEnclosingElement();
-//        builder.setTypeElement(clazz);
         for (Element e: annotatedElements) {
             final TypeElement clazz = (TypeElement) e.getEnclosingElement();
             DispatcherWriter.Builder builder = builders.get(clazz);
@@ -94,7 +89,7 @@ public class Processor extends AbstractProcessor{
         final TypeMirror returnType = e.getReturnType();
         if (!returnType.getKind().equals(TypeKind.VOID)) {
             processingEnv.getMessager()
-                    .printMessage(Kind.ERROR, "Subscriber must return void", e);
+                    .printMessage(Kind.WARNING, "Subscriber should return void", e);
         }
     }
 }

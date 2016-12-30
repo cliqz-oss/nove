@@ -1,7 +1,6 @@
 package com.cliqz.nove;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class Bus {
+
+    public static final String DISPATCHER_POSTFIX = "__$$Dispatcher$$";
+    public static final String POST_METHOD_NAME = "post";
+    public static final String MESSAGE_TYPES_FIELD_NAME = "MESSAGE_TYPES";
 
     private final static ClassLoader loader = Bus.class.getClassLoader();
     private final Map<Object, Dispatcher> dispatcherMap = new HashMap<>();
@@ -19,7 +22,7 @@ public class Bus {
             try {
                 final Dispatcher dispatcher = new Dispatcher(object);
                 dispatcherMap.put(object, dispatcher);
-                final Class[] messages = (Class[]) dispatcher.getMessagesType.invoke(dispatcher.dispatcher);
+                final Class[] messages = dispatcher.messageTypes;
                 for (Class clazz: messages) {
                     Set<Dispatcher> objects = messagesToObject.get(clazz);
                     if (objects == null) {
@@ -38,8 +41,7 @@ public class Bus {
         if (dispatcherMap.containsKey(object)) {
             final Dispatcher dispatcher = dispatcherMap.remove(object);
             try {
-                final Class[] messages = (Class[]) dispatcher.getMessagesType.invoke(dispatcher.dispatcher);
-                for (Class clazz: messages) {
+                for (Class clazz: dispatcher.messageTypes) {
                     Set objects = messagesToObject.get(clazz);
                     if (objects != null) {
                         objects.remove(dispatcher);
@@ -67,17 +69,18 @@ public class Bus {
     private static class Dispatcher {
         final Object dispatcher;
         final Method post;
-        final Method getMessagesType;
+        final Class[] messageTypes;
 
         Dispatcher(Object object) throws Exception {
             final String dispatcherClassName =
-                    object.getClass().getCanonicalName() + "__$$Dispatcher$$";
+                    object.getClass().getCanonicalName() + DISPATCHER_POSTFIX;
             final Class dispatcherClass = loader.loadClass(dispatcherClassName);
             final Constructor cstr = dispatcherClass.getConstructor(object.getClass());
             dispatcher = cstr.newInstance(object);
 
-            post = dispatcherClass.getDeclaredMethod("post", Object.class);
-            getMessagesType = dispatcherClass.getDeclaredMethod("getMessagesType");
+            post = dispatcherClass.getDeclaredMethod(POST_METHOD_NAME, Object.class);
+            messageTypes = (Class[]) dispatcherClass
+                    .getDeclaredField(MESSAGE_TYPES_FIELD_NAME).get(null);
         }
     }
 }

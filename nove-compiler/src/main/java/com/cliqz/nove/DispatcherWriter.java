@@ -1,6 +1,7 @@
 package com.cliqz.nove;
 
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -87,16 +88,16 @@ class DispatcherWriter {
     }
 
     public void write(Filer filer) {
-        final String clazzName = mClassName + "__$$Dispatcher$$";
+        final String clazzName = mClassName + Bus.DISPATCHER_POSTFIX;
         final MethodSpec cstr = createConstructor();
         final MethodSpec post = createPostMethod();
-        final MethodSpec getMessagesType = createGetMessagesType();
+        final FieldSpec messageTypes = createMessageTypes();
         final TypeSpec binder = TypeSpec.classBuilder(clazzName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addField(messageTypes)
                 .addField(TypeName.get(mClazz.asType()), "subscriber", Modifier.FINAL, Modifier.PRIVATE)
                 .addMethod(cstr)
                 .addMethod(post)
-                .addMethod(getMessagesType)
                 .build();
         final JavaFile javaFile = JavaFile.builder(mPackageName, binder).build();
         try {
@@ -106,23 +107,23 @@ class DispatcherWriter {
         }
     }
 
-    private MethodSpec createGetMessagesType() {
+    private FieldSpec createMessageTypes() {
         final ArrayList<TypeMirror> types = new ArrayList<>(mMethods.values());
         final StringBuilder builder = new StringBuilder();
         builder.append(types.get(0).toString()).append(".class");
         for (int i = 1; i < types.size(); i++) {
             builder.append(", ").append(types.get(1).toString()).append(".class");
         }
-        return MethodSpec.methodBuilder("getMessagesType")
-                .returns(Class[].class)
-                .addModifiers(Modifier.PUBLIC)
-                .addStatement("return new Class[] { $L }", builder.toString())
+        final CodeBlock init = CodeBlock.of("new Class[] { $L }", builder.toString());
+        return FieldSpec.builder(Class[].class, Bus.MESSAGE_TYPES_FIELD_NAME,
+                Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
+                .initializer(init)
                 .build();
     }
 
     private MethodSpec createPostMethod() {
         final CodeBlock code = createPostCodeBlock();
-        return MethodSpec.methodBuilder("post")
+        return MethodSpec.methodBuilder(Bus.POST_METHOD_NAME)
                 .returns(void.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Object.class, "message")
@@ -155,7 +156,11 @@ class DispatcherWriter {
 
     private static String getPackage(Name qualifiedName) {
         final String str = qualifiedName.toString();
-        return str.substring(0, str.lastIndexOf('.'));
+        try {
+            return str.substring(0, str.lastIndexOf('.'));
+        } catch (IndexOutOfBoundsException e) {
+            return "";
+        }
     }
 
     private static String getClassName(Name qualifiedName) {
