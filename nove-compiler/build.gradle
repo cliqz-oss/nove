@@ -1,3 +1,5 @@
+import org.gradle.internal.jvm.Jvm
+
 apply plugin: 'java'
 
 dependencies {
@@ -7,8 +9,10 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'com.google.testing.compile:compile-testing:0.10'
     // As suggested here: https://github.com/google/compile-testing/issues/28
-    testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+    testCompile files(Jvm.current().getToolsJar())
 }
 
+//noinspection GroovyUnusedAssignment
 sourceCompatibility = "1.7"
+//noinspection GroovyUnusedAssignment
 targetCompatibility = "1.7"

@@ -68,6 +68,7 @@ public class ProcessorTest {
     public void shouldWarnIfSubscriberReturns() {
         final Compilation compilation = compileResource("NonVoidResultSubscriber.java");
         assertThat(compilation).succeeded();
+        //noinspection ResultOfMethodCallIgnored
         assertThat(compilation).hadWarningContaining(ProcessorMessages.WARNING_NON_VOID_RESULT);
     }
 
@@ -79,6 +80,7 @@ public class ProcessorTest {
 
     private void testForFail(String resource, String expectedErrorMessage) {
         final Compilation compilation = compileResource(resource);
+        //noinspection ResultOfMethodCallIgnored
         assertThat(compilation).hadErrorContaining(expectedErrorMessage);
     }
 }

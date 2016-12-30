@@ -9,9 +9,9 @@ import java.util.Set;
 
 public class Bus {
 
-    public static final String DISPATCHER_POSTFIX = "__$$Dispatcher$$";
-    public static final String POST_METHOD_NAME = "post";
-    public static final String MESSAGE_TYPES_FIELD_NAME = "MESSAGE_TYPES";
+    static final String DISPATCHER_POSTFIX = "__$$Dispatcher$$";
+    static final String POST_METHOD_NAME = "post";
+    static final String MESSAGE_TYPES_FIELD_NAME = "MESSAGE_TYPES";
 
     private final static ClassLoader loader = Bus.class.getClassLoader();
     private final Map<Object, Dispatcher> dispatcherMap = new HashMap<>();
@@ -54,7 +54,7 @@ public class Bus {
     }
 
     public void post(Object object) {
-        Set<Dispatcher> dispatchers = messagesToObject.get(object.getClass());
+        final Set<Dispatcher> dispatchers = messagesToObject.get(object.getClass());
         if (dispatchers != null) {
             for (Dispatcher dispatcher: dispatchers) {
                 try {
@@ -75,10 +75,14 @@ public class Bus {
             final String dispatcherClassName =
                     object.getClass().getCanonicalName() + DISPATCHER_POSTFIX;
             final Class dispatcherClass = loader.loadClass(dispatcherClassName);
-            final Constructor cstr = dispatcherClass.getConstructor(object.getClass());
-            dispatcher = cstr.newInstance(object);
+            //noinspection unchecked
+            final Constructor constructor =
+                    dispatcherClass.getConstructor(object.getClass());
+            dispatcher = constructor.newInstance(object);
 
-            post = dispatcherClass.getDeclaredMethod(POST_METHOD_NAME, Object.class);
+            //noinspection unchecked
+            post = dispatcherClass
+                    .getDeclaredMethod(POST_METHOD_NAME, Object.class);
             messageTypes = (Class[]) dispatcherClass
                     .getDeclaredField(MESSAGE_TYPES_FIELD_NAME).get(null);
         }

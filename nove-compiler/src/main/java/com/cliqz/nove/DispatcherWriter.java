@@ -32,7 +32,7 @@ class DispatcherWriter {
     private Map<String, TypeMirror> mMethods;
     private TypeElement mClazz;
 
-    public static class Builder {
+    static class Builder {
 
         private TypeElement mClazz;
         private String mPackageName;
@@ -83,20 +83,20 @@ class DispatcherWriter {
     private DispatcherWriter() {
     }
 
-    public static Builder builder() {
+    static Builder builder() {
         return new Builder();
     }
 
-    public void write(Filer filer) {
+    void write(Filer filer) {
         final String clazzName = mClassName + Bus.DISPATCHER_POSTFIX;
-        final MethodSpec cstr = createConstructor();
+        final MethodSpec constructor = createConstructor();
         final MethodSpec post = createPostMethod();
         final FieldSpec messageTypes = createMessageTypes();
         final TypeSpec binder = TypeSpec.classBuilder(clazzName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addField(messageTypes)
                 .addField(TypeName.get(mClazz.asType()), "subscriber", Modifier.FINAL, Modifier.PRIVATE)
-                .addMethod(cstr)
+                .addMethod(constructor)
                 .addMethod(post)
                 .build();
         final JavaFile javaFile = JavaFile.builder(mPackageName, binder).build();

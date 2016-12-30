@@ -4,5 +4,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
+//noinspection GroovyUnusedAssignment
 sourceCompatibility = "1.7"
+//noinspection GroovyUnusedAssignment
 targetCompatibility = "1.7"
