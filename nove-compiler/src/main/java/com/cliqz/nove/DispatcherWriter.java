@@ -102,7 +102,7 @@ class DispatcherWriter {
         final StringBuilder builder = new StringBuilder();
         builder.append(types.get(0).toString()).append(".class");
         for (int i = 1; i < types.size(); i++) {
-            builder.append(", ").append(types.get(1).toString()).append(".class");
+            builder.append(", ").append(types.get(i).toString()).append(".class");
         }
         final CodeBlock init = CodeBlock.of("new Class[] { $L }", builder.toString());
         return FieldSpec.builder(Class[].class, Bus.MESSAGE_TYPES_FIELD_NAME,
