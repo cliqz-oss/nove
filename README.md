@@ -1,4 +1,4 @@
-Nove - A event bus by CLIQZ
+Nove - An event bus by CLIQZ
 ===========================
 
 Nove is a drop-in replacement for [Square's Otto][1].
@@ -12,7 +12,7 @@ Nove Bus is self contained, uses only the Java Standard Library and has a small
 memory footprint, it does not use any third party library and is not Android
 specific.
 
-As Otto, Nove does not offer threading control as it is delegated to the user.
+Nove does not offer threading enforcement as it is delegated to the user.
 
 Usage
 -----
@@ -51,7 +51,7 @@ final class Message {
 }
 ```
 
-Try to avoid using not final message types or to extend a another message type.
+Try to avoid using not final message classes or to extend another message type.
 In the following example, ``handleTheOtherMessage`` will not be called when we
 post a ``Message2`` message.
 
@@ -97,12 +97,12 @@ of your `pom.xml` and the `nove-compiler` artifact as either an `optional` or
   <dependency>
     <groupId>com.cliqz.nove</groupId>
     <artifactId>nove</artifactId>
-    <version>0.1</version>
+    <version>0.1.0</version>
   </dependency>
   <dependency>
     <groupId>com.cliqz.nove</groupId>
     <artifactId>nove-compiler</artifactId>
-    <version>0.1</version>
+    <version>0.1.0</version>
     <optional>true</optional>
   </dependency>
 </dependencies>
@@ -116,16 +116,16 @@ plugins {
 }
 
 dependencies {
-  compile 'com.cliqz.nove:nove:1.0'
-  apt 'com.cliqz.nove:nove-compiler:1.0'
+  compile 'com.cliqz.nove:nove:0.1.0'
+  apt 'com.cliqz.nove:nove-compiler:0.1.0'
 }
 ```
 
 ### Android Gradle
 ```groovy
 dependencies {
-  compile 'com.cliqz.nove:nove:1.0'
-  annotationProcessor 'com.cliqz.nove:nove-compiler:1.0'
+  compile 'com.cliqz.nove:nove:0.1.0'
+  annotationProcessor 'com.cliqz.nove:nove-compiler:0.1.0'
 }
 ```
 

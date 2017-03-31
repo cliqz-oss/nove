@@ -10,7 +10,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
- * Created by stefano on 30/12/16.
+ * @author Stefano Pacifici
  */
 @SuppressWarnings("UnnecessaryBoxing")
 public class BusTest {

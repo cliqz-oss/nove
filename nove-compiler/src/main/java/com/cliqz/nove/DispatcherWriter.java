@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
+ * Helper class to generate java source files
+ *
  * @author Stefano Pacifici
- * @date 2016/12/19
  */
-
 class DispatcherWriter {
 
     private String mPackageName;

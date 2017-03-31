@@ -9,7 +9,6 @@ import static com.google.testing.compile.Compiler.javac;
 
 /**
  * @author Stefano Pacifici
- * @date 2016/12/29
  */
 
 public class ProcessorTest {

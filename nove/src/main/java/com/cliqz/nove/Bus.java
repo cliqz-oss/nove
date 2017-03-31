@@ -7,6 +7,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A bus dispatches messages to the listeners and provides a method for listeners to register to the
+ * bus itself.
+ *
+ * @author Stefano Pacifici
+ */
 public class Bus {
 
     static final String DISPATCHER_POSTFIX = "__$$Dispatcher$$";
@@ -17,6 +23,12 @@ public class Bus {
     private final Map<Object, Dispatcher> dispatcherMap = new HashMap<>();
     private final Map<Class, Set<Dispatcher>> messageToDispatchers = new HashMap<>();
 
+    /**
+     * Registers the given object to the bus as messages listener
+     *
+     * @param object object to register as listener
+     * @throws IllegalArgumentException if object is null
+     */
     public void register(Object object) {
         if (object == null) {
             throw new IllegalArgumentException("Trying to register a null reference");
@@ -31,7 +43,7 @@ public class Bus {
         }
     }
 
-    // Visible for testing
+    // Visible for testing, load the compile time generated dispatcher for the given object
     @SuppressWarnings("WeakerAccess")
     void addDispatcherFor(Object object, Dispatcher dispatcher) {
         dispatcherMap.put(object, dispatcher);
@@ -45,6 +57,12 @@ public class Bus {
         }
     }
 
+    /**
+     * Removes the given object from the listeners register. After this call no message will be
+     * forwarded to the object
+     *
+     * @param object the listener to unregister
+     */
     public void unregister(Object object) {
         if (dispatcherMap.containsKey(object)) {
             final Dispatcher dispatcher = dispatcherMap.remove(object);
@@ -61,6 +79,11 @@ public class Bus {
         }
     }
 
+    /**
+     * Post a message to all the registered listeners
+     *
+     * @param object a message to be dispatched to the proper listeners
+     */
     public void post(Object object) {
         final Set<Dispatcher> dispatchers = messageToDispatchers.get(object.getClass());
         if (dispatchers != null) {
@@ -70,7 +93,9 @@ public class Bus {
         }
     }
 
-    // Visible for testing
+    // Visible for testing, utility inner class that encapsulate loading of the specific, generated
+    // dispatcher via reflection. It forward the calls to the compile time generated post methods
+    // by caching the reference
     @SuppressWarnings("WeakerAccess")
     static class Dispatcher {
         private final Object dispatcher;

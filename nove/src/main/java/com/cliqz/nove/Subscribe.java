@@ -6,10 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * An marker annotation used to generate messages dispatchers
+ *
  * @author Stefano Pacifici
- * @date 2016/12/18
  */
-
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)
 public @interface Subscribe {

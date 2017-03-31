@@ -1,7 +1,7 @@
 package com.cliqz.nove;
 
 /**
- * Created by stefano on 30/12/16.
+ * @author Stefano Pacifici
  */
 class Subscriber__$$Dispatcher$$ {
     public static final Class[] MESSAGE_TYPES = new Class[] { String.class };

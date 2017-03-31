@@ -13,6 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Annotation processor for the {@link Subscribe} annotation that generates message dispatchers
+ *
+ * @author Stefano Pacifici
+ */
 @SupportedAnnotationTypes("com.cliqz.nove.Subscribe")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class Processor extends AbstractProcessor{

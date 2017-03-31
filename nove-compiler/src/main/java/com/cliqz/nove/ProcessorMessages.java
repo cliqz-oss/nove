@@ -3,7 +3,9 @@ package com.cliqz.nove;
 import javax.lang.model.element.Modifier;
 
 /**
- * Created by stefano on 30/12/16.
+ * Help class to properly generate code generation errors
+ *
+ * @author Stefano Pacifici
  */
 final class ProcessorMessages {
 
