@@ -1,1 +1,1 @@
-include ':app', ':nove', ':nove-compiler'
+include ':nove', ':nove-compiler'

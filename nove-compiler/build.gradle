@@ -1,5 +1,5 @@
 import org.gradle.internal.jvm.Jvm
-
+apply from: '../bintray.gradle'
 apply plugin: 'java'
 
 dependencies {
@@ -16,3 +16,10 @@ dependencies {
 sourceCompatibility = "1.7"
 //noinspection GroovyUnusedAssignment
 targetCompatibility = "1.7"
+
+bintray {
+    pkg {
+        name = 'nove-compiler'
+        desc = 'Nove annotation processor'
+    }
+}
