@@ -46,7 +46,12 @@ public class Processor extends AbstractProcessor{
                 checkModifiers(ee);
                 checkReturnVoid(ee);
                 checkParameters(ee);
-                builder.addSubscriberMethod(ee);
+                try {
+                    builder.addSubscriberMethod(ee);
+                } catch (MethodOverloadingException exc) {
+                    processingEnv.getMessager()
+                            .printMessage(Kind.ERROR, ProcessorMessages.ERROR_METHOD_OVERLOADING);
+                }
             }
         }
 

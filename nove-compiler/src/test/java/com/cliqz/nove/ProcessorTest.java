@@ -63,6 +63,11 @@ public class ProcessorTest {
     }
 
     @Test
+    public void shouldFailIfMethodOverloading() {
+        testForFail("MethodOverloading.java", ProcessorMessages.ERROR_METHOD_OVERLOADING);
+    }
+
+    @Test
     public void shouldWarnIfSubscriberReturns() {
         final Compilation compilation = compileResource("NonVoidResultSubscriber.java");
         assertThat(compilation).succeeded();

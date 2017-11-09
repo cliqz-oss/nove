@@ -9,6 +9,7 @@ import javax.lang.model.element.Modifier;
  */
 final class ProcessorMessages {
 
+
     private ProcessorMessages() {}
 
     static final String ERROR_INVALID_MODIFIER_PRIVATE = "Invalid modifier: private";
@@ -16,6 +17,7 @@ final class ProcessorMessages {
     static final String ERROR_INVALID_MODIFIER_ABSTRACT = "Invalid modifier: abstract";
     static final String ERROR_TOO_MANY_ARGUMENTS = "Subscriber must have a single parameter";
     static final String ERROR_PRIMITIVE_PARAMETERS = "Subscriber can't use primitives as parameters";
+    static final String ERROR_METHOD_OVERLOADING = "Subscriber method overloading is not supported";
 
     static final String WARNING_NON_VOID_RESULT = "Subscriber should return void";
 

@@ -37,10 +37,13 @@ class DispatcherWriter {
             return this;
         }
 
-        Builder addSubscriberMethod(ExecutableElement e) {
+        @SuppressWarnings("UnusedReturnValue")
+        Builder addSubscriberMethod(ExecutableElement e) throws MethodOverloadingException {
             final String methodName = e.getSimpleName().toString();
             for (VariableElement ve: e.getParameters()) {
-                methods.put(methodName, ve.asType());
+                if (methods.put(methodName, ve.asType()) != null) {
+                    throw new MethodOverloadingException();
+                }
             }
             return this;
         }

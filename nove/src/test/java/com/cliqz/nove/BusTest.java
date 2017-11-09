@@ -21,6 +21,7 @@ public class BusTest {
     public void init() {
         bus = new Bus();
     }
+
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowTryingToRegisterNullObject() {
         bus.register(null);

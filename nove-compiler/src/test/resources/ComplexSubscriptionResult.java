@@ -2,7 +2,7 @@ import java.lang.Class;
 import java.lang.Object;
 
 public final class ComplexSubscription__$$Dispatcher$$ {
-    public static final Class[] MESSAGE_TYPES = new Class[] { ComplexSubscription.Message1.class, ComplexSubscription.Message2.class, ComplexSubscription.Message2.class };
+    public static final Class[] MESSAGE_TYPES = new Class[] { ComplexSubscription.Message1.class, ComplexSubscription.Message2.class, ComplexSubscription.Message3.class };
 
     private final ComplexSubscription subscriber;
 
