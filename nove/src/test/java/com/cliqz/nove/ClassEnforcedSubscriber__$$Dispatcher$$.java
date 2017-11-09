@@ -3,12 +3,12 @@ package com.cliqz.nove;
 /**
  * @author Stefano Pacifici
  */
-class Subscriber__$$Dispatcher$$ {
+class ClassEnforcedSubscriber__$$Dispatcher$$ {
     public static final Class[] MESSAGE_TYPES = new Class[] { String.class };
 
-    private final Subscriber subscriber;
+    private final ClassEnforcedSubscriber subscriber;
 
-    public Subscriber__$$Dispatcher$$(Subscriber subscriber) {
+    public ClassEnforcedSubscriber__$$Dispatcher$$(ClassEnforcedSubscriber subscriber) {
         this.subscriber = subscriber;
     }
 

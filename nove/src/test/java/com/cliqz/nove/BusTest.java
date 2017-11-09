@@ -27,6 +27,21 @@ public class BusTest {
         bus.register(null);
     }
 
+    @Test(expected = DispatcherNotFoundException.class)
+    public void shouldThrowIfDispatcherDoesNotExists() {
+        bus.register(this);
+    }
+
+    @Test(expected = SubclassRegistrationException.class)
+    public void shouldThrowTryingToRegisterFromSuper() {
+        new BadSubSubscriber(bus);
+    }
+
+    @Test
+    public void shouldNotThrowForClassEnforcedSuper() {
+        new NiceSubSubscriber(bus);
+    }
+
     @Test
     public void shouldDeliverMessages() {
         Bus.Dispatcher dispatcher = mock(Bus.Dispatcher.class);
@@ -51,8 +66,7 @@ public class BusTest {
     @Test
     public void shouldLoadADispatcher() {
         final String msg = "Hello, nove!!!";
-        final Subscriber subscriber = new Subscriber();
-        bus.register(subscriber);
+        final RegularSubscriber subscriber = new RegularSubscriber(bus);
         bus.post(msg);
         assertThat(subscriber.msg, is(notNullValue()));
         assertThat(subscriber.msg, equalTo(msg));

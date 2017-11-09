@@ -23,23 +23,34 @@ public class Bus {
     private final Map<Object, Dispatcher> dispatcherMap = new HashMap<>();
     private final Map<Class, Set<Dispatcher>> messageToDispatchers = new HashMap<>();
 
+
     /**
-     * Registers the given object to the bus as messages listener
+     * Registers the given object to the bus as messages listener.
      *
      * @param object object to register as listener
      * @throws IllegalArgumentException if object is null
      */
-    public void register(Object object) {
+    public <T> void register(T object) {
+        @SuppressWarnings("unchecked")
+        final Class<T> clazz = object != null ? (Class<T>) object.getClass() : null;
+        register(object, clazz);
+    }
+
+    /**
+     * Registers the given object to the bus as messages listener forcing the base class type. Use this in a base
+     * class in case you extended it.
+     *
+     * @param object object to register as listener
+     * @param clazz object class, used especially to register superclasses
+     * @throws IllegalArgumentException if object is null
+     */
+    public <T> void register(T object, Class<T> clazz) {
         if (object == null) {
             throw new IllegalArgumentException("Trying to register a null reference");
         }
         if (!dispatcherMap.containsKey(object)) {
-            try {
-                final Dispatcher dispatcher = new Dispatcher(object);
-                addDispatcherFor(object, dispatcher);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            final Dispatcher<T> dispatcher = new Dispatcher<>(object, clazz);
+            addDispatcherFor(object, dispatcher);
         }
     }
 
@@ -68,7 +79,7 @@ public class Bus {
             final Dispatcher dispatcher = dispatcherMap.remove(object);
             try {
                 for (Class clazz: dispatcher.messageTypes) {
-                    Set objects = messageToDispatchers.get(clazz);
+                    Set<Dispatcher> objects = messageToDispatchers.get(clazz);
                     if (objects != null) {
                         objects.remove(dispatcher);
                     }
@@ -97,25 +108,44 @@ public class Bus {
     // dispatcher via reflection. It forward the calls to the compile time generated post methods
     // by caching the reference
     @SuppressWarnings("WeakerAccess")
-    static class Dispatcher {
+    static class Dispatcher<T> {
         private final Object dispatcher;
         private final Method post;
         private final Class[] messageTypes;
 
-        Dispatcher(Object object) throws Exception {
-            final String dispatcherClassName =
-                    object.getClass().getCanonicalName() + DISPATCHER_POSTFIX;
-            final Class dispatcherClass = loader.loadClass(dispatcherClassName);
-            //noinspection unchecked
-            final Constructor constructor =
-                    dispatcherClass.getConstructor(object.getClass());
-            dispatcher = constructor.newInstance(object);
+        Dispatcher(T object, Class<T> clazz) {
+            final String dispatcherClassName = clazz.getCanonicalName() + DISPATCHER_POSTFIX;
+            try {
+                final Class dispatcherClass = loader.loadClass(dispatcherClassName);
+                //noinspection unchecked
+                final Constructor constructor =
+                        dispatcherClass.getConstructor(clazz);
+                dispatcher = constructor.newInstance(object);
 
-            //noinspection unchecked
-            post = dispatcherClass
-                    .getDeclaredMethod(POST_METHOD_NAME, Object.class);
-            messageTypes = (Class[]) dispatcherClass
-                    .getDeclaredField(MESSAGE_TYPES_FIELD_NAME).get(null);
+                //noinspection unchecked
+                post = dispatcherClass
+                        .getDeclaredMethod(POST_METHOD_NAME, Object.class);
+                messageTypes = (Class[]) dispatcherClass
+                        .getDeclaredField(MESSAGE_TYPES_FIELD_NAME).get(null);
+            } catch (ClassNotFoundException cnfe) {
+                // This is only useful to properly address problems due to class hierarchies
+                final Class sup = clazz.getSuperclass();
+                if (sup != null && !sup.isInterface() && !sup.isPrimitive()) {
+                    // Check if a concrete or abstract parent class has a Dispatcher
+                    final String disName = sup.getCanonicalName() + DISPATCHER_POSTFIX;
+                    try {
+                        final Class dispatcherClass = loader.loadClass(disName);
+                        throw new SubclassRegistrationException(sup);
+                    } catch (ClassNotFoundException innerCnfe) {
+                        // NOP
+                    }
+                }
+                // The class should have at least one Subscribe annotated method
+                throw new DispatcherNotFoundException(dispatcherClassName);
+            } catch (Exception e) {
+                // Re-throw any other exception as a RuntimeException
+                throw new RuntimeException(e);
+            }
         }
 
         void post(Object message) {
