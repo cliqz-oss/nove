@@ -116,9 +116,8 @@ public class Bus {
         Dispatcher(T object, Class<T> clazz) {
             final String dispatcherClassName = clazz.getCanonicalName() + DISPATCHER_POSTFIX;
             try {
-                final Class dispatcherClass = loader.loadClass(dispatcherClassName);
-                //noinspection unchecked
-                final Constructor constructor =
+                final Class<?> dispatcherClass = loader.loadClass(dispatcherClassName);
+                final Constructor<?> constructor =
                         dispatcherClass.getConstructor(clazz);
                 dispatcher = constructor.newInstance(object);
 

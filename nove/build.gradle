@@ -12,6 +12,9 @@ sourceCompatibility = "1.7"
 //noinspection GroovyUnusedAssignment
 targetCompatibility = "1.7"
 
+compileJava {
+    options.compilerArgs += [ '-Xlint:unchecked', '-Xlint:deprecation' ]
+}
 bintray {
     pkg {
         name = 'nove'
