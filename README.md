@@ -1,10 +1,10 @@
-Nove - An event bus by CLIQZ
-===========================
+Nove - An event bus by Cliqz
+============================
 
 Nove is a drop-in replacement for [Square's Otto][1].
 
 Nove generates message dispatching code using an annotation processor 
-(nove-compiler), the generated classes are loaded at runtime using reflection:
+(nove-compiler). The generated classes are loaded at runtime using reflection:
 this approach guarantees two order of magnitude better performance on Android if
 compared with Otto.
 
@@ -86,7 +86,7 @@ TODO
 Download
 --------
 
-Downloadable .jars can be found on the [GitHub download page][2].
+Downloadable .jars can be found on the [release page][2].
 
 In a Maven project, include the `nove` artifact in the dependencies section
 of your `pom.xml` and the `nove-compiler` artifact as either an `optional` or
@@ -97,12 +97,12 @@ of your `pom.xml` and the `nove-compiler` artifact as either an `optional` or
   <dependency>
     <groupId>com.cliqz.nove</groupId>
     <artifactId>nove</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
   </dependency>
   <dependency>
     <groupId>com.cliqz.nove</groupId>
     <artifactId>nove-compiler</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <optional>true</optional>
   </dependency>
 </dependencies>
@@ -116,18 +116,24 @@ plugins {
 }
 
 dependencies {
-  compile 'com.cliqz.nove:nove:0.1.0'
-  apt 'com.cliqz.nove:nove-compiler:0.1.0'
+  compile 'com.cliqz.nove:nove:0.2.0'
+  apt 'com.cliqz.nove:nove-compiler:0.2.0'
 }
 ```
 
-### Android Gradle
+### Android Gradle (plugin version 3.+)
 ```groovy
 dependencies {
-  compile 'com.cliqz.nove:nove:0.1.0'
-  annotationProcessor 'com.cliqz.nove:nove-compiler:0.1.0'
+  implementation 'com.cliqz:nove:0.1.0'
+  annotationProcessor 'com.cliqz:nove-compiler:0.1.0'
 }
 ```
 
+## Contributing
+* Bug reports, feature requests and general question can be added as an Issue. 
+* PRs are welcome. 
+* Questions? Concerns? Feel free to [contact us][3].
+
 [1]: https://github.com/square/otto
-[2]: https://github.com/cliqz-oss/nove/downloads
+[2]: https://github.com/cliqz-oss/nove/releases/latest
+[3]: mailto:cliqz-oss@cliqz.com?subject=nove
