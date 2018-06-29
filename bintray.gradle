@@ -4,16 +4,9 @@ apply plugin: 'maven'
 group = 'com.cliqz'
 version = nove_version
 
-def localPropsFile = new File(project.rootDir, 'local.properties')
-def props = new Properties()
-
-localPropsFile.withInputStream {
-    props.load(it)
-}
-
 bintray {
-    user = props['bintray.user']
-    key = props['bintray.api_key']
+    user = project.properties['bintray.user']
+    key = project.properties['bintray.api_key']
     configurations = ['archives']
     pkg {
         repo = 'cliqz-oss'

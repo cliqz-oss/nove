@@ -20,8 +20,8 @@ public class Bus {
     static final String MESSAGE_TYPES_FIELD_NAME = "MESSAGE_TYPES";
 
     private final static ClassLoader loader = Bus.class.getClassLoader();
-    private final Map<Object, Dispatcher> dispatcherMap = new HashMap<>();
-    private final Map<Class, Set<Dispatcher>> messageToDispatchers = new HashMap<>();
+    private final Map<Object, Dispatcher> dispatcherMap = new COWMap<>();
+    private final MessagesToDispatchers messageToDispatchers = new MessagesToDispatchers();
 
 
     /**
@@ -50,6 +50,7 @@ public class Bus {
         }
         if (!dispatcherMap.containsKey(object)) {
             final Dispatcher<T> dispatcher = new Dispatcher<>(object, clazz);
+            dispatcherMap.put(object, dispatcher);
             addDispatcherFor(object, dispatcher);
         }
     }
@@ -57,14 +58,8 @@ public class Bus {
     // Visible for testing, load the compile time generated dispatcher for the given object
     @SuppressWarnings("WeakerAccess")
     void addDispatcherFor(Object object, Dispatcher dispatcher) {
-        dispatcherMap.put(object, dispatcher);
         for (Class clazz: dispatcher.getMessageTypes()) {
-            Set<Dispatcher> dispatcherSet = messageToDispatchers.get(clazz);
-            if (dispatcherSet == null) {
-                dispatcherSet = new HashSet<>();
-                messageToDispatchers.put(clazz, dispatcherSet);
-            }
-            dispatcherSet.add(dispatcher);
+            messageToDispatchers.addDispatcherFor(clazz, dispatcher);
         }
     }
 
@@ -79,10 +74,7 @@ public class Bus {
             final Dispatcher dispatcher = dispatcherMap.remove(object);
             try {
                 for (Class clazz: dispatcher.messageTypes) {
-                    Set<Dispatcher> objects = messageToDispatchers.get(clazz);
-                    if (objects != null) {
-                        objects.remove(dispatcher);
-                    }
+                    messageToDispatchers.removeDispatcher(clazz, dispatcher);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -96,12 +88,7 @@ public class Bus {
      * @param object a message to be dispatched to the proper listeners
      */
     public void post(Object object) {
-        final Set<Dispatcher> dispatchers = messageToDispatchers.get(object.getClass());
-        if (dispatchers != null) {
-            for (Dispatcher dispatcher: dispatchers) {
-                dispatcher.post(object);
-            }
-        }
+        messageToDispatchers.dispatch(object);
     }
 
     // Visible for testing, utility inner class that encapsulate loading of the specific, generated
