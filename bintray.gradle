@@ -5,8 +5,8 @@ group = 'com.cliqz'
 version = nove_version
 
 bintray {
-    user = project.properties['bintray.user']
-    key = project.properties['bintray.api_key']
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
     configurations = ['archives']
     pkg {
         repo = 'cliqz-oss'
