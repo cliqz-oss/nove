@@ -75,6 +75,11 @@ public class ProcessorTest {
         assertThat(compilation).hadWarningContaining(ProcessorMessages.WARNING_NON_VOID_RESULT);
     }
 
+    @Test
+    public void shouldGenerateASubscribersRegisterClass() {
+        final Compilation compilation = compileResource("SimpleSubscription.java");
+        assertThat(compilation).generatedSourceFile("com.cliqz.nove.SubscribersRegister");
+    }
     private Compilation compileResource(String resource) {
         return javac()
                 .withProcessors(new Processor())
