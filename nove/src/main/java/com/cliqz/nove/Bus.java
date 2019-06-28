@@ -14,10 +14,18 @@ public class Bus {
     static final String POST_METHOD_NAME = "post";
     static final String MESSAGE_TYPES_FIELD_NAME = "MESSAGE_TYPES";
 
-    private final static ClassLoader loader = Bus.class.getClassLoader();
     private final Map<Object, Dispatcher> dispatcherMap = new COWMap<>();
-    private final MessagesToDispatchers messageToDispatchers = new MessagesToDispatchers();
+    private SubscribersRegister messageToDispatchers; // = new MessagesToDispatchers();
 
+    public Bus() {
+        try {
+            final Class clazz =
+                    getClass().getClassLoader().loadClass("com.cliqz.nove.SubscribersRegisterImpl");
+            messageToDispatchers = (SubscribersRegister) clazz.newInstance();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Registers the given object to the bus as messages listener.
@@ -53,7 +61,7 @@ public class Bus {
     // Visible for testing, load the compile time generated dispatcher for the given object
     void addDispatcherFor(Object object, Dispatcher dispatcher) {
         for (Class clazz: dispatcher.getMessageTypes()) {
-            messageToDispatchers.addDispatcherFor(clazz, dispatcher);
+            messageToDispatchers.register(clazz, dispatcher);
         }
     }
 
@@ -68,7 +76,7 @@ public class Bus {
             final Dispatcher dispatcher = dispatcherMap.remove(object);
             try {
                 for (Class clazz: dispatcher.getMessageTypes()) {
-                    messageToDispatchers.removeDispatcher(clazz, dispatcher);
+                    messageToDispatchers.unregister(clazz, dispatcher);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

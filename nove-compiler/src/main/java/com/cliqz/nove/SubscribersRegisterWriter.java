@@ -23,6 +23,9 @@ class SubscribersRegisterWriter {
     public static final String SUBSCRIBERS_REGISTER_IMPL_CLASS_NAME = "SubscribersRegisterImpl";
     public static final String PACKAGE_NAME = "com.cliqz.nove";
     private static final String UNREGISTER_METHOD_NAME = "unregister";
+    private static final String DISPATCH_METHOD_NAME = "dispatch";
+    private static final String MESSAGE_PARAMETER_NAME = "msg";
+    private static final Object CLASS_NAME_VAR_NAME = "className";
 
     private HashSet<TypeMirror> messageTypes = new HashSet<>();
 
@@ -83,6 +86,31 @@ class SubscribersRegisterWriter {
                 .addStatement("$L.remove($L)", DISPATCHERS_SET_VAR_NAME, DISPATCHER_PARAMETER_NAME)
                 .endControlFlow()
                 .build();
+
+        final MethodSpec dispatchSpec = MethodSpec.methodBuilder(DISPATCH_METHOD_NAME)
+                .returns(TypeName.VOID)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ClassName.get(Object.class), MESSAGE_PARAMETER_NAME)
+                .addStatement("assert $L == null", MESSAGE_PARAMETER_NAME)
+                .addStatement("final $T $L = $L.getClass().getCanonicalName()",
+                        ClassName.get(String.class),
+                        CLASS_NAME_VAR_NAME,
+                        MESSAGE_PARAMETER_NAME)
+                .addStatement("final $T $L = $N.get($L)",
+                        setOfDispatchersTN,
+                        DISPATCHERS_SET_VAR_NAME,
+                        MESSAGE_TO_DISPATCHERS_FIELD_NAME,
+                        CLASS_NAME_VAR_NAME)
+                .addStatement("assert $L != null", DISPATCHERS_SET_VAR_NAME)
+                .beginControlFlow("synchronized ($L)", DISPATCHERS_SET_VAR_NAME)
+                .beginControlFlow("for ($T dispatcher: $L)",
+                        dispatcherCN,
+                        DISPATCHERS_SET_VAR_NAME)
+                .addStatement("dispatcher.post($L)", MESSAGE_PARAMETER_NAME)
+                .endControlFlow()
+                .endControlFlow()
+                .build();
+
         final TypeSpec binder = TypeSpec
                 .classBuilder(SUBSCRIBERS_REGISTER_IMPL_CLASS_NAME)
                 .addSuperinterface(TypeName.get(SubscribersRegister.class))
@@ -91,6 +119,7 @@ class SubscribersRegisterWriter {
                 .addMethod(constructorSpec)
                 .addMethod(registerDispatcherSpec)
                 .addMethod(unregisterDispatcherSpec)
+                .addMethod(dispatchSpec)
                 .build();
         final JavaFile javaFile = JavaFile.builder(PACKAGE_NAME, binder)
                 .skipJavaLangImports(true).build();
