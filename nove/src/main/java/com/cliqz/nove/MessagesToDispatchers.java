@@ -5,24 +5,24 @@ package com.cliqz.nove;
  */
 class MessagesToDispatchers {
 
-    private COWMap<Class, COWSet<Bus.Dispatcher>> messagesToDispatchers = new COWMap<>();
+    private COWMap<Class, COWSet<Dispatcher>> messagesToDispatchers = new COWMap<>();
 
-    void addDispatcherFor(Class clazz, Bus.Dispatcher dispatcher) {
-        final COWSet<Bus.Dispatcher> set = getDispatchers(clazz);
+    void addDispatcherFor(Class clazz, Dispatcher dispatcher) {
+        final COWSet<Dispatcher> set = getDispatchers(clazz);
         set.add(dispatcher);
     }
 
-    void removeDispatcher(Class clazz, Bus.Dispatcher dispatcher) {
-        final COWSet<Bus.Dispatcher> set = getDispatchers(clazz);
+    void removeDispatcher(Class clazz, Dispatcher dispatcher) {
+        final COWSet<Dispatcher> set = getDispatchers(clazz);
         set.remove(dispatcher);
     }
 
-    private COWSet<Bus.Dispatcher> getDispatchers(Class clazz) {
-        COWSet<Bus.Dispatcher> set;
+    private COWSet<Dispatcher> getDispatchers(Class clazz) {
+        COWSet<Dispatcher> set;
         while ((set = messagesToDispatchers.get(clazz)) == null) {
             synchronized (this) {
                 if (messagesToDispatchers.get(clazz) == null) {
-                    messagesToDispatchers.put(clazz, new COWSet<Bus.Dispatcher>());
+                    messagesToDispatchers.put(clazz, new COWSet<Dispatcher>());
                 }
             }
         }
@@ -30,8 +30,8 @@ class MessagesToDispatchers {
     }
 
     void dispatch(Object object) {
-        final COWSet<Bus.Dispatcher> set = getDispatchers(object.getClass());
-        for (Bus.Dispatcher dispatcher: set) {
+        final COWSet<Dispatcher> set = getDispatchers(object.getClass());
+        for (Dispatcher dispatcher: set) {
             dispatcher.post(object);
         }
     }

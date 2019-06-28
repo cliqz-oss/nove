@@ -44,7 +44,7 @@ public class BusTest {
 
     @Test
     public void shouldDeliverMessages() {
-        Bus.Dispatcher dispatcher = mock(Bus.Dispatcher.class);
+        Dispatcher dispatcher = mock(Dispatcher.class);
         when(dispatcher.getMessageTypes())
                 .thenReturn(new Class[] { Integer.class });
         bus.addDispatcherFor(this, dispatcher);
@@ -54,7 +54,7 @@ public class BusTest {
 
     @Test
     public void shouldNotDeliverUnexpectedTypes() {
-        Bus.Dispatcher dispatcher = mock(Bus.Dispatcher.class);
+        Dispatcher dispatcher = mock(Dispatcher.class);
         when(dispatcher.getMessageTypes())
                 .thenReturn(new Class[] { Integer.class });
         bus.addDispatcherFor(this, dispatcher);

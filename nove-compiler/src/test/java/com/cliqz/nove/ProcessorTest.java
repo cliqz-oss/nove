@@ -71,15 +71,16 @@ public class ProcessorTest {
     public void shouldWarnIfSubscriberReturns() {
         final Compilation compilation = compileResource("NonVoidResultSubscriber.java");
         assertThat(compilation).succeeded();
-        //noinspection ResultOfMethodCallIgnored
         assertThat(compilation).hadWarningContaining(ProcessorMessages.WARNING_NON_VOID_RESULT);
     }
 
     @Test
     public void shouldGenerateASubscribersRegisterClass() {
-        final Compilation compilation = compileResource("SimpleSubscription.java");
-        assertThat(compilation).generatedSourceFile("com.cliqz.nove.SubscribersRegister");
+        final Compilation compilation = compileResource("ComplexSubscription.java");
+        assertThat(compilation)
+                .generatedSourceFile(SubscribersRegisterWriter.PACKAGE_NAME + "." + SubscribersRegisterWriter.SUBSCRIBERS_REGISTER_IMPL_CLASS_NAME);
     }
+
     private Compilation compileResource(String resource) {
         return javac()
                 .withProcessors(new Processor())
@@ -88,7 +89,6 @@ public class ProcessorTest {
 
     private void testForFail(String resource, String expectedErrorMessage) {
         final Compilation compilation = compileResource(resource);
-        //noinspection ResultOfMethodCallIgnored
         assertThat(compilation).hadErrorContaining(expectedErrorMessage);
     }
 }
