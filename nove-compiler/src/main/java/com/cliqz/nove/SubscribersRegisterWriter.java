@@ -6,9 +6,7 @@ import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeMirror;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.*;
 
 /**
  * Helper class to generate the SubscribersRegister class
@@ -26,6 +24,7 @@ class SubscribersRegisterWriter {
     private static final String DISPATCH_METHOD_NAME = "dispatch";
     private static final String MESSAGE_PARAMETER_NAME = "msg";
     private static final Object CLASS_NAME_VAR_NAME = "className";
+    private static final String FIND_DISPACHERS_METHOD_NAME = "findDispatchers";
 
     private HashSet<TypeMirror> messageTypes = new HashSet<>();
 
@@ -52,8 +51,9 @@ class SubscribersRegisterWriter {
         final MethodSpec constructorSpec = constructorSpecBuilder.build();
 
         final MethodSpec registerDispatcherSpec = MethodSpec.methodBuilder(REGISTER_METHOD_NAME)
-                .returns(TypeName.VOID)
+                .addAnnotation(ClassName.get(Override.class))
                 .addModifiers(Modifier.PUBLIC)
+                .returns(TypeName.VOID)
                 .addParameter(ClassName.get(Class.class), CLASS_PARAMETER_NAME)
                 .addParameter(dispatcherCN, DISPATCHER_PARAMETER_NAME)
                 .addStatement("assert $L != null", CLASS_PARAMETER_NAME)
@@ -70,10 +70,11 @@ class SubscribersRegisterWriter {
                 .build();
 
         final MethodSpec unregisterDispatcherSpec = MethodSpec.methodBuilder(UNREGISTER_METHOD_NAME)
-                .returns(TypeName.VOID)
+                .addAnnotation(ClassName.get(Override.class))
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ClassName.get(Class.class), CLASS_PARAMETER_NAME)
                 .addParameter(dispatcherCN, DISPATCHER_PARAMETER_NAME)
+                .returns(TypeName.VOID)
                 .addStatement("assert $L != null", CLASS_PARAMETER_NAME)
                 .addStatement("assert $L != null", DISPATCHER_PARAMETER_NAME)
                 .addStatement("final $T $L = $N.get($L.getCanonicalName())",
@@ -87,11 +88,17 @@ class SubscribersRegisterWriter {
                 .endControlFlow()
                 .build();
 
-        final MethodSpec dispatchSpec = MethodSpec.methodBuilder(DISPATCH_METHOD_NAME)
-                .returns(TypeName.VOID)
-                .addModifiers(Modifier.PUBLIC)
+        final TypeName dispatchersCollectionTN = ParameterizedTypeName
+                .get(ClassName.get(Collection.class), dispatcherCN);
+        final TypeName dispatchersLinkedListTN = ParameterizedTypeName
+                .get(ClassName.get(LinkedList.class), dispatcherCN);
+        final MethodSpec findDispatchersSpec = MethodSpec.methodBuilder(FIND_DISPACHERS_METHOD_NAME)
+                .addModifiers(Modifier.PROTECTED)
+                .addAnnotation(ClassName.get(Override.class))
+                .returns(dispatchersCollectionTN)
                 .addParameter(ClassName.get(Object.class), MESSAGE_PARAMETER_NAME)
-                .addStatement("assert $L == null", MESSAGE_PARAMETER_NAME)
+                .addStatement("assert $L != null", MESSAGE_PARAMETER_NAME)
+                //final List<Dispatcher> dispatchers = new LinkedList<Dispatcher>()
                 .addStatement("final $T $L = $L.getClass().getCanonicalName()",
                         ClassName.get(String.class),
                         CLASS_NAME_VAR_NAME,
@@ -103,23 +110,19 @@ class SubscribersRegisterWriter {
                         CLASS_NAME_VAR_NAME)
                 .addStatement("assert $L != null", DISPATCHERS_SET_VAR_NAME)
                 .beginControlFlow("synchronized ($L)", DISPATCHERS_SET_VAR_NAME)
-                .beginControlFlow("for ($T dispatcher: $L)",
-                        dispatcherCN,
-                        DISPATCHERS_SET_VAR_NAME)
-                .addStatement("dispatcher.post($L)", MESSAGE_PARAMETER_NAME)
-                .endControlFlow()
+                .addStatement("return new $T($N)", dispatchersLinkedListTN, DISPATCHERS_SET_VAR_NAME)
                 .endControlFlow()
                 .build();
 
         final TypeSpec binder = TypeSpec
                 .classBuilder(SUBSCRIBERS_REGISTER_IMPL_CLASS_NAME)
-                .addSuperinterface(TypeName.get(SubscribersRegister.class))
+                .superclass(TypeName.get(SubscribersRegister.class))
                 .addModifiers(Modifier.FINAL)
                 .addField(msgToDispatchersField)
                 .addMethod(constructorSpec)
                 .addMethod(registerDispatcherSpec)
                 .addMethod(unregisterDispatcherSpec)
-                .addMethod(dispatchSpec)
+                .addMethod(findDispatchersSpec)
                 .build();
         final JavaFile javaFile = JavaFile.builder(PACKAGE_NAME, binder)
                 .skipJavaLangImports(true).build();

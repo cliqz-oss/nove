@@ -1,9 +1,20 @@
 package com.cliqz.nove;
 
-interface SubscribersRegister {
-    void register(Class clazz, Dispatcher dispatcher);
+import java.util.Collection;
 
-    void unregister(Class clazz, Dispatcher dispatcher);
+abstract class SubscribersRegister {
+    public abstract void register(Class clazz, Dispatcher dispatcher);
 
-    void dispatch(Object msg);
+    public abstract void unregister(Class clazz, Dispatcher dispatcher);
+
+    protected abstract Collection<Dispatcher> findDispatchers(Object msg);
+
+    public final void dispatch(Object msg) {
+        final Collection<Dispatcher> dispatchers = findDispatchers(msg);
+        if (dispatchers != null) {
+            for (Dispatcher dispatcher: dispatchers) {
+                dispatcher.post(msg);
+            }
+        }
+    }
 }
