@@ -2,16 +2,7 @@ package com.cliqz.nove;
 
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
-import org.junit.Assert;
 import org.junit.Test;
-
-import javax.tools.JavaFileObject;
-
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
@@ -89,28 +80,6 @@ public class ProcessorTest {
         assertThat(compilation).succeeded();
         assertThat(compilation)
                 .generatedSourceFile(SubscribersRegisterWriter.PACKAGE_NAME + "." + SubscribersRegisterWriter.SUBSCRIBERS_REGISTER_IMPL_CLASS_NAME);
-    }
-
-    @Test
-    public void test123() {
-        final List<JavaFileObject> compilation =
-                recursiveCompile(Collections.singletonList(JavaFileObjects.forResource("ComplexSubscription.java")));
-        Assert.assertNotNull(compilation);
-    }
-
-    private List<JavaFileObject> recursiveCompile(List<JavaFileObject> objects) {
-        final LinkedList<JavaFileObject> out = new LinkedList<>();
-        for (JavaFileObject jfo: objects) {
-            if (jfo.getKind() == JavaFileObject.Kind.SOURCE) {
-                final Compilation compilation = javac()
-                        .withProcessors(new Processor())
-                        .compile(jfo);
-                out.addAll(recursiveCompile(compilation.generatedFiles()));
-            } else {
-                out.add(jfo);
-            }
-        }
-        return out;
     }
 
     private Compilation compileResource(String resource) {

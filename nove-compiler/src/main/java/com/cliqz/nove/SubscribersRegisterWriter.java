@@ -21,7 +21,6 @@ class SubscribersRegisterWriter {
     public static final String SUBSCRIBERS_REGISTER_IMPL_CLASS_NAME = "SubscribersRegisterImpl";
     public static final String PACKAGE_NAME = "com.cliqz.nove";
     private static final String UNREGISTER_METHOD_NAME = "unregister";
-    private static final String DISPATCH_METHOD_NAME = "dispatch";
     private static final String MESSAGE_PARAMETER_NAME = "msg";
     private static final Object CLASS_NAME_VAR_NAME = "className";
     private static final String FIND_DISPACHERS_METHOD_NAME = "findDispatchers";
@@ -41,7 +40,8 @@ class SubscribersRegisterWriter {
                 .addModifiers(Modifier.PRIVATE, Modifier.FINAL)
                 .build();
 
-        final MethodSpec.Builder constructorSpecBuilder = MethodSpec.constructorBuilder()
+        final MethodSpec.Builder constructorSpecBuilder = MethodSpec
+                .constructorBuilder()
                 .addStatement("$N = new $T($L)", msgToDispatchersField, msgToDispachersTN, messageTypes.size());
         for (TypeMirror typeMirror : messageTypes) {
             final String name = typeMirror.toString();
@@ -83,9 +83,7 @@ class SubscribersRegisterWriter {
                         MESSAGE_TO_DISPATCHERS_FIELD_NAME,
                         CLASS_PARAMETER_NAME)
                 .addStatement("assert $L != null", DISPATCHERS_SET_VAR_NAME)
-                .beginControlFlow("synchronized ($L)", DISPATCHERS_SET_VAR_NAME)
                 .addStatement("$L.remove($L)", DISPATCHERS_SET_VAR_NAME, DISPATCHER_PARAMETER_NAME)
-                .endControlFlow()
                 .build();
 
         final TypeName dispatchersCollectionTN = ParameterizedTypeName
@@ -109,9 +107,7 @@ class SubscribersRegisterWriter {
                         MESSAGE_TO_DISPATCHERS_FIELD_NAME,
                         CLASS_NAME_VAR_NAME)
                 .addStatement("assert $L != null", DISPATCHERS_SET_VAR_NAME)
-                .beginControlFlow("synchronized ($L)", DISPATCHERS_SET_VAR_NAME)
                 .addStatement("return new $T($N)", dispatchersLinkedListTN, DISPATCHERS_SET_VAR_NAME)
-                .endControlFlow()
                 .build();
 
         final TypeSpec binder = TypeSpec

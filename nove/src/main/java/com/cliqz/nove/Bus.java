@@ -1,5 +1,6 @@
 package com.cliqz.nove;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -14,16 +15,20 @@ public class Bus {
     static final String POST_METHOD_NAME = "post";
     static final String MESSAGE_TYPES_FIELD_NAME = "MESSAGE_TYPES";
 
-    private final Map<Object, Dispatcher> dispatcherMap = new COWMap<>();
-    private SubscribersRegister messageToDispatchers; // = new MessagesToDispatchers();
+    private final Map<Object, Dispatcher> dispatcherMap = new HashMap<>();
+    private static SubscribersRegister sMessageToDispatchers;
 
     public Bus() {
-        try {
-            final Class clazz =
-                    getClass().getClassLoader().loadClass("com.cliqz.nove.SubscribersRegisterImpl");
-            messageToDispatchers = (SubscribersRegister) clazz.newInstance();
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
+        synchronized (Bus.class) {
+            if (sMessageToDispatchers == null) {
+                try {
+                    final Class clazz = Bus.class.getClassLoader()
+                            .loadClass("com.cliqz.nove.SubscribersRegisterImpl");
+                    sMessageToDispatchers = (SubscribersRegister) clazz.newInstance();
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
@@ -33,7 +38,7 @@ public class Bus {
      * @param object object to register as listener
      * @throws IllegalArgumentException if object is null
      */
-    public <T> void register(T object) {
+    public synchronized <T> void register(T object) {
         @SuppressWarnings("unchecked")
         final Class<T> clazz = object != null ? (Class<T>) object.getClass() : null;
         register(object, clazz);
@@ -47,21 +52,21 @@ public class Bus {
      * @param clazz object class, used especially to register superclasses
      * @throws IllegalArgumentException if object is null
      */
-    public <T> void register(T object, Class<T> clazz) {
+    public synchronized <T> void register(T object, Class<T> clazz) {
         if (object == null) {
             throw new IllegalArgumentException("Trying to register a null reference");
         }
         if (!dispatcherMap.containsKey(object)) {
             final Dispatcher<T> dispatcher = new Dispatcher<>(object, clazz);
             dispatcherMap.put(object, dispatcher);
-            addDispatcherFor(object, dispatcher);
+            addDispatcherFor(dispatcher);
         }
     }
 
     // Visible for testing, load the compile time generated dispatcher for the given object
-    void addDispatcherFor(Object object, Dispatcher dispatcher) {
+    void addDispatcherFor(Dispatcher dispatcher) {
         for (Class clazz: dispatcher.getMessageTypes()) {
-            messageToDispatchers.register(clazz, dispatcher);
+            sMessageToDispatchers.register(clazz, dispatcher);
         }
     }
 
@@ -71,12 +76,12 @@ public class Bus {
      *
      * @param object the listener to unregister
      */
-    public void unregister(Object object) {
+    public synchronized void unregister(Object object) {
         if (dispatcherMap.containsKey(object)) {
             final Dispatcher dispatcher = dispatcherMap.remove(object);
             try {
                 for (Class clazz: dispatcher.getMessageTypes()) {
-                    messageToDispatchers.unregister(clazz, dispatcher);
+                    sMessageToDispatchers.unregister(clazz, dispatcher);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -90,7 +95,7 @@ public class Bus {
      * @param object a message to be dispatched to the proper listeners
      */
     public void post(Object object) {
-        messageToDispatchers.dispatch(object);
+        sMessageToDispatchers.dispatch(object);
     }
 
 }

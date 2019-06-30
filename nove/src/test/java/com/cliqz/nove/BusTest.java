@@ -47,7 +47,7 @@ public class BusTest {
         Dispatcher dispatcher = mock(Dispatcher.class);
         when(dispatcher.getMessageTypes())
                 .thenReturn(new Class[] { Integer.class });
-        bus.addDispatcherFor(this, dispatcher);
+        bus.addDispatcherFor(dispatcher);
         bus.post(Integer.valueOf(5));
         verify(dispatcher).post(Integer.valueOf(5));
     }
@@ -57,7 +57,7 @@ public class BusTest {
         Dispatcher dispatcher = mock(Dispatcher.class);
         when(dispatcher.getMessageTypes())
                 .thenReturn(new Class[] { Integer.class });
-        bus.addDispatcherFor(this, dispatcher);
+        bus.addDispatcherFor(dispatcher);
         reset(dispatcher);
         bus.post(Long.valueOf(4));
         verifyZeroInteractions(dispatcher);
