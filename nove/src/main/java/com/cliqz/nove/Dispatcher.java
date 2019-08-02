@@ -2,6 +2,7 @@ package com.cliqz.nove;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Set;
 
 // Visible for testing, utility inner class that encapsulate loading of the specific, generated
 // dispatcher via reflection. It forward the calls to the compile time generated post methods
@@ -12,7 +13,7 @@ class Dispatcher<T> {
 
     private final Object dispatcher;
     private final Method post;
-    private final Class[] messageTypes;
+    private final Set<Class> messageTypes;
 
     Dispatcher(T object, Class<T> clazz) {
         final String dispatcherClassName = clazz.getCanonicalName() + Bus.DISPATCHER_POSTFIX;
@@ -24,7 +25,7 @@ class Dispatcher<T> {
 
             post = dispatcherClass
                     .getDeclaredMethod(Bus.POST_METHOD_NAME, Object.class);
-            messageTypes = (Class[]) dispatcherClass
+            messageTypes = (Set<Class>) dispatcherClass
                     .getDeclaredField(Bus.MESSAGE_TYPES_FIELD_NAME).get(null);
         } catch (ClassNotFoundException cnfe) {
             // This is only useful to properly address problems due to class hierarchies
@@ -55,7 +56,7 @@ class Dispatcher<T> {
         }
     }
 
-    Class[] getMessageTypes() {
+    Set<Class> getMessageTypes() {
         return messageTypes;
     }
 }

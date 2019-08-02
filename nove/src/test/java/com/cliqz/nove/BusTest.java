@@ -3,6 +3,9 @@ package com.cliqz.nove;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -46,8 +49,8 @@ public class BusTest {
     public void shouldDeliverMessages() {
         Dispatcher dispatcher = mock(Dispatcher.class);
         when(dispatcher.getMessageTypes())
-                .thenReturn(new Class[] { Integer.class });
-        bus.addDispatcherFor(dispatcher);
+                .thenReturn(new HashSet(Arrays.asList(Integer.class)));
+        bus.addTestDispatcher(dispatcher);
         bus.post(Integer.valueOf(5));
         verify(dispatcher).post(Integer.valueOf(5));
     }
@@ -56,8 +59,7 @@ public class BusTest {
     public void shouldNotDeliverUnexpectedTypes() {
         Dispatcher dispatcher = mock(Dispatcher.class);
         when(dispatcher.getMessageTypes())
-                .thenReturn(new Class[] { Integer.class });
-        bus.addDispatcherFor(dispatcher);
+                .thenReturn(new HashSet(Arrays.asList(Integer.class)));
         reset(dispatcher);
         bus.post(Long.valueOf(4));
         verifyZeroInteractions(dispatcher);
