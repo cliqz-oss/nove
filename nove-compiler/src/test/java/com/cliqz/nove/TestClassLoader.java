@@ -1,8 +1,6 @@
 package com.cliqz.nove;
 
-import com.google.common.base.Optional;
 import com.google.testing.compile.Compilation;
-import com.google.testing.compile.JavaFileObjects;
 
 import javax.tools.JavaFileObject;
 import java.io.ByteArrayOutputStream;

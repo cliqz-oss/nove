@@ -83,7 +83,9 @@ class SubscribersRegisterWriter {
                         MESSAGE_TO_DISPATCHERS_FIELD_NAME,
                         CLASS_PARAMETER_NAME)
                 .addStatement("assert $L != null", DISPATCHERS_SET_VAR_NAME)
+                .beginControlFlow("synchronized ($L)", DISPATCHERS_SET_VAR_NAME)
                 .addStatement("$L.remove($L)", DISPATCHERS_SET_VAR_NAME, DISPATCHER_PARAMETER_NAME)
+                .endControlFlow()
                 .build();
 
         final TypeName dispatchersCollectionTN = ParameterizedTypeName

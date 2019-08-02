@@ -8,14 +8,15 @@ dependencies {
     compile 'com.squareup:javapoet:1.11.1'
     testCompile 'junit:junit:4.12'
     testCompile 'com.google.testing.compile:compile-testing:0.10'
+    testCompile 'commons-io:commons-io:2.6'
     // As suggested here: https://github.com/google/compile-testing/issues/28
     testCompile files(Jvm.current().getToolsJar())
 }
 
-//noinspection GroovyUnusedAssignment
-sourceCompatibility = "1.7"
-//noinspection GroovyUnusedAssignment
-targetCompatibility = "1.7"
+compileJava {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+}
 
 bintray {
     pkg {

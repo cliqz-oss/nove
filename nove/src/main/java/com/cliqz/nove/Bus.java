@@ -9,7 +9,7 @@ import java.util.Map;
  *
  * @author Stefano Pacifici
  */
-public class Bus {
+public final class Bus {
 
     static final String DISPATCHER_POSTFIX = "__$$Dispatcher$$";
     static final String POST_METHOD_NAME = "post";
