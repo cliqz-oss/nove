@@ -1,6 +1,8 @@
 package com.cliqz.nove;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,15 +66,19 @@ public final class Bus {
     /**
      * Post a message to all the registered listeners
      *
-     * @param object a message to be dispatched to the proper listeners
+     * @param message a message to be dispatched to the proper listeners
      */
-    public void post(Object object) {
+    public void post(Object message) {
+        final List<Dispatcher> dispatcherList = new LinkedList<>();
         synchronized (dispatcherMap) {
             for (Dispatcher dispatcher: dispatcherMap.values()) {
-                if (dispatcher.getMessageTypes().contains(object.getClass())) {
-                    dispatcher.post(object);
+                if (dispatcher.canHandleMessage(message)) {
+                    dispatcherList.add(dispatcher);
                 }
             }
+        }
+        for (Dispatcher dispatcher: dispatcherList) {
+            dispatcher.post(message);
         }
     }
 

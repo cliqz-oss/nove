@@ -15,6 +15,7 @@ class Dispatcher<T> {
     private final Method post;
     private final Set<Class> messageTypes;
 
+    @SuppressWarnings("unchecked")
     Dispatcher(T object, Class<T> clazz) {
         final String dispatcherClassName = clazz.getCanonicalName() + Bus.DISPATCHER_POSTFIX;
         try {
@@ -26,7 +27,8 @@ class Dispatcher<T> {
             post = dispatcherClass
                     .getDeclaredMethod(Bus.POST_METHOD_NAME, Object.class);
             messageTypes = (Set<Class>) dispatcherClass
-                    .getDeclaredField(Bus.MESSAGE_TYPES_FIELD_NAME).get(null);
+                    .getDeclaredField(Bus.MESSAGE_TYPES_FIELD_NAME)
+                    .get(null);
         } catch (ClassNotFoundException cnfe) {
             // This is only useful to properly address problems due to class hierarchies
             final Class sup = clazz.getSuperclass();
@@ -48,15 +50,20 @@ class Dispatcher<T> {
         }
     }
 
+    boolean canHandleMessage(Object message) {
+        return messageTypes.contains(message.getClass());
+    }
+
+    /**
+     * Dispatch the message only if tit has a supported type
+     *
+     * @param message the message to send
+     */
     void post(Object message) {
         try {
             post.invoke(dispatcher, message);
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    Set<Class> getMessageTypes() {
-        return messageTypes;
     }
 }

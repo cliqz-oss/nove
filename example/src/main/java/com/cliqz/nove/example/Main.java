@@ -3,7 +3,7 @@ package com.cliqz.nove.example;
 import com.cliqz.nove.Bus;
 import com.cliqz.nove.Subscribe;
 
-public class Main {
+class Main {
 
     private static final int MAX_REQUESTS = 20;
 

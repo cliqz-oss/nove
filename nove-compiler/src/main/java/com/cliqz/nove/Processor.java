@@ -34,7 +34,6 @@ public class Processor extends AbstractProcessor{
         }
 
         final HashMap<TypeElement, DispatcherWriter.Builder> builders = new HashMap<>();
-        final SubscribersRegisterWriter subscribersRegisterWriter = new SubscribersRegisterWriter();
         for (Element e: annotatedElements) {
             final TypeElement clazz = (TypeElement) e.getEnclosingElement();
             DispatcherWriter.Builder builder = builders.get(clazz);
@@ -47,7 +46,6 @@ public class Processor extends AbstractProcessor{
                 checkModifiers(ee);
                 checkReturnVoid(ee);
                 checkParameters(ee);
-                subscribersRegisterWriter.addMessageType(ee.getParameters().get(0).asType());
                 try {
                     builder.addSubscriberMethod(ee);
                 } catch (MethodOverloadingException exc) {
@@ -57,7 +55,6 @@ public class Processor extends AbstractProcessor{
             }
         }
 
-        subscribersRegisterWriter.write(processingEnv.getFiler());
         for (DispatcherWriter.Builder builder: builders.values()) {
             final DispatcherWriter writer = builder.build();
             writer.write(processingEnv.getFiler());

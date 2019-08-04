@@ -4,12 +4,6 @@ import com.google.testing.compile.Compilation;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.Test;
 
-import javax.tools.JavaFileObject;
-
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
 
@@ -78,14 +72,6 @@ public class ProcessorTest {
         final Compilation compilation = compileResource("NonVoidResultSubscriber.java");
         assertThat(compilation).succeeded();
         assertThat(compilation).hadWarningContaining(ProcessorMessages.WARNING_NON_VOID_RESULT);
-    }
-
-    @Test
-    public void shouldGenerateASubscribersRegisterImplClass() {
-        final Compilation compilation = compileResource("ComplexSubscription.java");
-        assertThat(compilation).succeeded();
-        assertThat(compilation)
-                .generatedSourceFile(SubscribersRegisterWriter.PACKAGE_NAME + "." + SubscribersRegisterWriter.SUBSCRIBERS_REGISTER_IMPL_CLASS_NAME);
     }
 
     private Compilation compileResource(String resource) {

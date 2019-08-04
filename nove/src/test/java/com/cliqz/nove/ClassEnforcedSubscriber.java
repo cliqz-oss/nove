@@ -5,14 +5,12 @@ package com.cliqz.nove;
  */
 class ClassEnforcedSubscriber {
 
-    String msg = null;
-
     ClassEnforcedSubscriber(Bus bus) {
         bus.register(this, ClassEnforcedSubscriber.class);
     }
 
     void receiveString(String msg) {
-        this.msg = msg;
+        System.out.println(msg);
     }
 
 }
