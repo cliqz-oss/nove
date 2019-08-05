@@ -7,14 +7,15 @@ dependencies {
     testCompile "org.mockito:mockito-core:2.5.0"
 }
 
-//noinspection GroovyUnusedAssignment
-sourceCompatibility = "1.7"
-//noinspection GroovyUnusedAssignment
-targetCompatibility = "1.7"
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+}
 
 compileJava {
     options.compilerArgs += [ '-Xlint:unchecked', '-Xlint:deprecation' ]
 }
+
 bintray {
     pkg {
         name = 'nove'

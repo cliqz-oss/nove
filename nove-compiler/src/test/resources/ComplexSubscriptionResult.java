@@ -1,8 +1,11 @@
 import java.lang.Class;
 import java.lang.Object;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class ComplexSubscription__$$Dispatcher$$ {
-    public static final Class[] MESSAGE_TYPES = new Class[] { ComplexSubscription.Message1.class, ComplexSubscription.Message2.class, ComplexSubscription.Message3.class };
+    public static final Set<Class> MESSAGE_TYPES = new HashSet<Class>(Arrays.asList(ComplexSubscription.Message1.class,ComplexSubscription.Message2.class,ComplexSubscription.Message3.class));
 
     private final ComplexSubscription subscriber;
 

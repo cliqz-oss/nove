@@ -44,20 +44,16 @@ public class BusTest {
 
     @Test
     public void shouldDeliverMessages() {
-        Bus.Dispatcher dispatcher = mock(Bus.Dispatcher.class);
-        when(dispatcher.getMessageTypes())
-                .thenReturn(new Class[] { Integer.class });
-        bus.addDispatcherFor(this, dispatcher);
+        Dispatcher dispatcher = mock(Dispatcher.class);
+        when(dispatcher.canHandleMessage(any(Integer.class))).thenReturn(true);
+        bus.addTestDispatcher(dispatcher);
         bus.post(Integer.valueOf(5));
         verify(dispatcher).post(Integer.valueOf(5));
     }
 
     @Test
     public void shouldNotDeliverUnexpectedTypes() {
-        Bus.Dispatcher dispatcher = mock(Bus.Dispatcher.class);
-        when(dispatcher.getMessageTypes())
-                .thenReturn(new Class[] { Integer.class });
-        bus.addDispatcherFor(this, dispatcher);
+        Dispatcher dispatcher = mock(Dispatcher.class);
         reset(dispatcher);
         bus.post(Long.valueOf(4));
         verifyZeroInteractions(dispatcher);

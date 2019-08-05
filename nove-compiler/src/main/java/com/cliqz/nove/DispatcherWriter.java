@@ -6,9 +6,8 @@ import javax.annotation.processing.Filer;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Helper class to generate java source files
@@ -101,14 +100,18 @@ class DispatcherWriter {
     }
 
     private FieldSpec createMessageTypes() {
-        final ArrayList<TypeMirror> types = new ArrayList<>(mMethods.values());
-        final StringBuilder builder = new StringBuilder();
-        builder.append(types.get(0).toString()).append(".class");
-        for (int i = 1; i < types.size(); i++) {
-            builder.append(", ").append(types.get(i).toString()).append(".class");
-        }
-        final CodeBlock init = CodeBlock.of("new Class[] { $L }", builder.toString());
-        return FieldSpec.builder(Class[].class, Bus.MESSAGE_TYPES_FIELD_NAME,
+        final ClassName classCN = ClassName.get(Class.class);
+        final TypeName setOfClassesTN =
+                ParameterizedTypeName.get(ClassName.get(Set.class), classCN);
+        final TypeName hashSetOfClassesTN =
+                ParameterizedTypeName.get(ClassName.get(HashSet.class), classCN);
+        final ClassName arraysCN = ClassName.get(Arrays.class);
+        final String typesString = mMethods.values().stream()
+                .map(typeMirror -> typeMirror.toString() + ".class")
+                .collect(Collectors.joining(","));
+        final CodeBlock init =
+                CodeBlock.of("new $T($T.asList($L))", hashSetOfClassesTN, arraysCN, typesString);
+        return FieldSpec.builder(setOfClassesTN, Bus.MESSAGE_TYPES_FIELD_NAME,
                 Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC)
                 .initializer(init)
                 .build();

@@ -1,10 +1,16 @@
 package com.cliqz.nove;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Stefano Pacifici
  */
 class ClassEnforcedSubscriber__$$Dispatcher$$ {
-    public static final Class[] MESSAGE_TYPES = new Class[] { String.class };
+    public static final Set<Class> MESSAGE_TYPES =
+            new HashSet<Class>(Collections.singletonList(String.class));
 
     private final ClassEnforcedSubscriber subscriber;
 
