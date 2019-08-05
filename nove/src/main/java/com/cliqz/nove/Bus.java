@@ -25,7 +25,7 @@ public final class Bus {
      * @param object object to register as listener
      * @throws IllegalArgumentException if object is null
      */
-    public synchronized <T> void register(T object) {
+    public <T> void register(T object) {
         @SuppressWarnings("unchecked")
         final Class<T> clazz = object != null ? (Class<T>) object.getClass() : null;
         register(object, clazz);
